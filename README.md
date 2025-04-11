@@ -36,3 +36,35 @@ project_root/
    - `gold` estan los datos listos para consumo de un algoritmo de ml
 - En la carpeta `src/pipelines` se deben almacenar los scripts de python para ejecutar el entrenamiento o preprocesamiento de los datos
 - En la carpeta `src/models` se deben almacenar los archivos de python que contienen las arquitecturas desarrolladas
+
+
+## Entornos de python (opcional)
+
+Para crear un entorno de python es necesario tener instalado python de forma global o tener instalado anaconda, conda, poetry, etc.
+
+### Usando virtualenv
+
+Ejecutar los commandos
+ 
+```python
+# installs the dependency
+pip install virtualenv
+# creates a new environment
+virtualenv venv
+# activates the environment
+source venv/bin/activate
+```
+
+### Dependencias
+
+Para instalar las dependencias del proyecto se pueden usar los siguientes commandos
+
+```python
+pip install -r requirements.txt
+```
+
+y también si usas poetry usar
+
+```python
+poetry install --no-root
+```

@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Don't commit the data to the github repo.
+data/bronze/*
+data/silver/*
+data/gold/*
