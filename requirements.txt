@@ -1,0 +1,11 @@
+opencv-python
+pymupdf
+transformers
+pillow
+torch
+torchvision
+progress
+ipywidgets
+matplotlib
+requests
+pytesseract
