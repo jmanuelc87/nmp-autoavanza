@@ -6,7 +6,7 @@ authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<4"
 dependencies = [
     "opencv-python (>=4.11.0.86,<5.0.0.0)",
     "pymupdf (>=1.25.5,<2.0.0)",
@@ -18,7 +18,11 @@ dependencies = [
     "ipywidgets (>=8.1.6,<9.0.0)",
     "matplotlib (>=3.10.1,<4.0.0)",
     "requests (>=2.32.3,<3.0.0)",
-    "pytesseract (>=0.3.13,<0.4.0)"
+    "pytesseract (>=0.3.13,<0.4.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "scikit-learn (>=1.6.1,<2.0.0)",
+    "datasets (>=3.5.0,<4.0.0)",
+    "label-studio (>=1.17.0,<2.0.0)"
 ]
 
 

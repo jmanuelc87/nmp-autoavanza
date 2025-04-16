@@ -9,3 +9,7 @@ ipywidgets
 matplotlib
 requests
 pytesseract
+pandas
+scikit-learn
+datasets
+label-studio
