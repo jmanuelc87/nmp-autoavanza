@@ -1,0 +1,16 @@
+opencv-python
+pymupdf
+transformers
+pillow
+torch
+torchvision
+progress
+ipywidgets
+matplotlib
+requests
+pytesseract
+pandas
+scikit-learn
+datasets
+langchain
+langchain-community
