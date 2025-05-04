@@ -12,4 +12,5 @@ pytesseract
 pandas
 scikit-learn
 datasets
-label-studio
+langchain
+langchain-community
