@@ -11,6 +11,7 @@ requests
 pytesseract
 pandas
 scikit-learn
+hf-xet
 datasets
-langchain
-langchain-community
+diffusers
+accelerate
