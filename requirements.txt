@@ -15,3 +15,6 @@ hf-xet
 datasets
 diffusers
 accelerate
+tqdm
+torchinfo
+torchgan
