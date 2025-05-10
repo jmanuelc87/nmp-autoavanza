@@ -18,3 +18,9 @@ accelerate
 tqdm
 torchinfo
 torchgan
+langchain-huggingface
+einops
+timm
+sentencepiece
+langchain-community
+langchain-ollama
