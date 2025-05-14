@@ -23,4 +23,4 @@ einops
 timm
 sentencepiece
 langchain-community
-langchain-ollama
+langchain-openai
