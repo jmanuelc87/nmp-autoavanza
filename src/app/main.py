@@ -4,7 +4,7 @@ import threading
 import numpy as np
 import tkinter as tk
 
-from autoavanza.app.document import Invoice
+from src.app.document import Invoice
 from PIL import Image, ImageTk
 
 
