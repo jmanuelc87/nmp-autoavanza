@@ -1,10 +1,10 @@
-import src.app.app as app
+import src.app.app as application
 import tkinter as tk
 
 
 def main():
     root = tk.Tk()
-    app = app.ScanApp(root)
+    app = application.ScanApp(root)
     app.compose()
     app.show_frame()
     root.mainloop()

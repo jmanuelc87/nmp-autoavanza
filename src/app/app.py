@@ -64,5 +64,5 @@ class ScanApp:
 
     def capture_invoice(self):
         if hasattr(self, 'image'):
-            image = self.invoice.process(self.image)
-            cv2.imwrite("invoice.jpeg", image)
+            final = self.invoice.process(self.image)
+            cv2.imwrite("invoice.jpeg", final)

@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from skimage.transform import rotate
+
 
 class Invoice:
 
@@ -51,7 +53,7 @@ class Invoice:
             (destination_corners[2][0], destination_corners[2][1]),
             flags=cv2.INTER_LINEAR,
         )
-        return final
+        return (rotate(final, angle=90, resize=True) * 255).astype(np.uint8)
 
     def order_points(self, pts):
         """Rearrange coordinates to order:
