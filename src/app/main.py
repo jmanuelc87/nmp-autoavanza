@@ -72,8 +72,8 @@ class ScanApp:
         self.root.after(int(sleep_time * 1000), self.show_frame)
 
     def capture_invoice(self):
-        if hasattr(self, "image"):
-            final = self.invoice.process(self.image)
+        if hasattr(self, "frame"):
+            final = self.invoice.process(self.frame)
             cv2.imwrite("invoice.jpeg", final)
 
 

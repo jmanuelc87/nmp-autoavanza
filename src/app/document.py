@@ -7,6 +7,8 @@ from skimage.transform import rotate
 class Invoice:
 
     def process(self, image):
+        if image is None:
+            return
         kernel = np.ones((5, 5), np.uint8)
         img = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel, iterations=3)
         mask = np.zeros(img.shape[:2], np.uint8)
