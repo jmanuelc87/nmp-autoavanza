@@ -41,10 +41,10 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{ include = "app", from = "src" }]
+packages = [{ include = "autoavanza", from = "src" }]
 
 [tool.poetry.scripts]
-app = "src.app.main:main"
+app = "autoavanza.main:main"
 
 
 [build-system]

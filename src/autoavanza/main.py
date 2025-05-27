@@ -4,7 +4,7 @@ import threading
 import numpy as np
 import tkinter as tk
 
-from src.app.document import Invoice
+from autoavanza.document import Scanner
 from PIL import Image, ImageTk
 
 
@@ -18,7 +18,7 @@ class ScanApp:
         self.root = root
         self.running = True
         self.capture = cv2.VideoCapture(0)
-        self.invoice = Invoice()
+        self.scanner = Scanner()
 
     def compose(self):
         self.root.title("Scan App")
@@ -73,7 +73,7 @@ class ScanApp:
 
     def capture_invoice(self):
         if hasattr(self, "frame"):
-            final = self.invoice.process(self.frame)
+            final = self.scanner.get_document_from(self.frame)
             cv2.imwrite("invoice.jpeg", final)
 
 
