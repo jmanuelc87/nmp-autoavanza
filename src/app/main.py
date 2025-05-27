@@ -34,23 +34,32 @@ class ScanApp:
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1980)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
+    def apply_overlay(self, img, rect_pt1, rect_pt2):
+        # Create a dark overlay
+        overlay = img.copy()
+        overlay[:] = (0, 0, 0)  # Dark color
+        alpha = 0.15  # Overlay transparency
+
+        # Draw a white rectangle to cover the area inside the dashed rectangle
+        cv2.rectangle(overlay, rect_pt1, rect_pt2, (255, 255, 255), cv2.FILLED)
+
+        # Blend the overlay with the original image
+        img = cv2.addWeighted(overlay, alpha, img, 1 - alpha, 0)
+        return img
+
     def show_frame(self):
         start_time = time.time()
-        ret, frame = self.capture.read()
+        ret, self.frame = self.capture.read()
         if ret:
-            h, w, _ = frame.shape
+            h, w, _ = self.frame.shape
             box_w, box_h = int(w * 0.70), int(h * 0.8)
             start_x = (w - box_w) // 2
             start_y = (h - box_h) // 2
             end_x = start_x + box_w
             end_y = start_y + box_h
-
-            # save a complete frame
-            self.image = frame
-
-            copy = frame.copy()
-            cv2.rectangle(copy, (start_x, start_y), (end_x, end_y), (0, 255, 0), 2)
-            rgb = cv2.cvtColor(copy, cv2.COLOR_BGR2RGB)
+            
+            frame = self.apply_overlay(self.frame, (start_x, start_y), (end_x, end_y))
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             img = Image.fromarray(rgb)
             imgtk = ImageTk.PhotoImage(image=img)
 
