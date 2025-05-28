@@ -52,7 +52,7 @@ class ScanApp:
         ret, self.frame = self.capture.read()
         if ret:
             h, w, _ = self.frame.shape
-            box_w, box_h = int(w * 0.70), int(h * 0.8)
+            box_w, box_h = int(w * 0.7), int(h * 0.7)
             start_x = (w - box_w) // 2
             start_y = (h - box_h) // 2
             end_x = start_x + box_w
@@ -73,9 +73,15 @@ class ScanApp:
 
     def capture_invoice(self):
         if hasattr(self, "frame"):
-            final = self.scanner.get_document_from(self.frame)
-            cv2.imwrite("invoice.jpeg", final)
-
+            def capture():
+                final = self.scanner.get_document_from(self.frame)
+                # For now we are writing it to disk, but can be sent to a service
+                cv2.imwrite("invoice.jpeg", final)
+                print("saved correctly...")
+            
+            t = threading.Thread(target=capture)
+            print("started processing document...")
+            t.start()
 
 def main():
     root = tk.Tk()
