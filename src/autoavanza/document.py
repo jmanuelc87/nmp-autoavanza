@@ -42,8 +42,33 @@ class Scanner:
                 (destination[2][0], destination[2][1]),
                 flags=cv2.INTER_LINEAR,
             )
-            
-            return final
+
+            return self.rotate_image(final)
+
+
+    def rotate_image(self, image: np.ndarray, angle=90) -> np.ndarray:
+        (h, w) = image.shape[:2]
+        center = (w // 2, h // 2)
+
+        # Get rotation matrix
+        M = cv2.getRotationMatrix2D(center, angle, 1.0)
+
+        # Compute sine and cosine of the rotation angle
+        abs_cos = abs(M[0, 0])
+        abs_sin = abs(M[0, 1])
+
+        # Compute new bounding dimensions
+        new_w = int(h * abs_sin + w * abs_cos)
+        new_h = int(h * abs_cos + w * abs_sin)
+
+        # Adjust the rotation matrix to take into account translation
+        M[0, 2] += (new_w / 2) - center[0]
+        M[1, 2] += (new_h / 2) - center[1]
+
+        # Perform the rotation
+        rotated = cv2.warpAffine(image, M, (new_w, new_h))
+
+        return rotated
 
     def process_morphology(self, image: np.ndarray) -> np.ndarray:
         kernel = np.ones((5, 5), np.uint8)
@@ -86,15 +111,15 @@ class Scanner:
 
     def find_dest(self, pts):
         (tl, tr, br, bl) = pts
-        
+
         widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
         widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
-        
+
         maxWidth = max(int(widthA), int(widthB))
 
         heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
         heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
-        
+
         maxHeight = max(int(heightA), int(heightB))
 
         destination_corners = [

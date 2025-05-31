@@ -19,6 +19,7 @@ class ScanApp:
         self.running = True
         self.capture = cv2.VideoCapture(0)
         self.scanner = Scanner()
+        self.resize_factor = 1280 / 1980
 
     def compose(self):
         self.root.title("Scan App")
@@ -57,10 +58,12 @@ class ScanApp:
             start_y = (h - box_h) // 2
             end_x = start_x + box_w
             end_y = start_y + box_h
-            
+
             frame = self.apply_overlay(self.frame, (start_x, start_y), (end_x, end_y))
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(rgb)
+            resized = cv2.resize(rgb, None, fx=self.resize_factor, fy=self.resize_factor, interpolation=cv2.INTER_LINEAR)
+
+            img = Image.fromarray(resized)
             imgtk = ImageTk.PhotoImage(image=img)
 
             # keep the image in memory
@@ -73,15 +76,17 @@ class ScanApp:
 
     def capture_invoice(self):
         if hasattr(self, "frame"):
+
             def capture():
                 final = self.scanner.get_document_from(self.frame)
                 # For now we are writing it to disk, but can be sent to a service
                 cv2.imwrite("invoice.jpeg", final)
                 print("saved correctly...")
-            
+
             t = threading.Thread(target=capture)
             print("started processing document...")
             t.start()
+
 
 def main():
     root = tk.Tk()
