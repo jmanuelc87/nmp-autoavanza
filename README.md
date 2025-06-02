@@ -68,3 +68,14 @@ y también si usas poetry usar
 ```python
 poetry install --no-root
 ```
+
+
+## Arquitectura de la Solución
+
+![arquitectura solucion](images/ArquitecturaSolucion.png "Arquitectura de la Solución")
+
+1. El usuario inicia una conversación en WhatsApp
+2. Whatsapp invoca la función lambda "wa_message_in" y almacena el mensaje en una tabla de dynamo db si el mensaje contiene una imagen se almacena en un bucket S3
+3. La función lambda "process_stream" recive los eventos del stream e invoca la función "lang_chain_agent"
+4. La función lambda "lang_chain_agent" procesa el mensaje, obtiene los documentos del bucket s3, valida siguiendo ciertas reglas predefinidas, y se invoca al modelo de machine learning.
+5. La función lambda "lang_chain_agent" invoca "wa_message_out" para devolver una respuesta al usuario mediante la API de whatsapp.
