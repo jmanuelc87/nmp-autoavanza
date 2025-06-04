@@ -33,3 +33,14 @@ class Lambdas(Construct):
             layers=[layers.bs4_requests],
             **COMMON_LAMBDA_CONF,
         )
+
+        self.process_stream = aws_lambda.Function(
+            self,
+            "process_stream",
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.from_asset(
+                "./application/lambdas/code/process_stream"
+            ),
+            layers=[layers.bs4_requests],
+            **COMMON_LAMBDA_CONF,
+        )
