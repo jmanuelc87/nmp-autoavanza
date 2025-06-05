@@ -120,7 +120,7 @@ def lambda_handler(events, context):
                     log.info(response)
 
                 elif message_type == "image":
-                    id = entry["image"]["body"]
+                    id = entry["image"]["id"]
                     caption = entry["image"]["caption"]
 
                     # search for the image using the META API
@@ -129,4 +129,4 @@ def lambda_handler(events, context):
                 log.info("No new messages")
 
         except Exception as e:
-            log.error("Error: ", e)
+            log.error("Error: %s", e)

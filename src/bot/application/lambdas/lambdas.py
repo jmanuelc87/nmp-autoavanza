@@ -52,6 +52,6 @@ class Lambdas(Construct):
             code=aws_lambda.Code.from_asset(
                 "./application/lambdas/code/lang_chain_agent"
             ),
-            layers=[],
+            layers=[layers.bs4_requests, layers.langchain],
             **COMMON_LAMBDA_CONF,
         )

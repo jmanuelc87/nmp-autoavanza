@@ -40,3 +40,18 @@ class Layers(Construct):
             ],
             description="pymupdf",
         )
+
+        self.langchain = aws_lambda.LayerVersion(
+            self,
+            "langchain",
+            code=aws_lambda.Code.from_asset(
+                "./application/lambdas/layers/langchain_layer.zip"
+            ),
+            compatible_runtimes=[
+                aws_lambda.Runtime.PYTHON_3_8,
+                aws_lambda.Runtime.PYTHON_3_9,
+                aws_lambda.Runtime.PYTHON_3_10,
+                aws_lambda.Runtime.PYTHON_3_11,
+            ],
+            description="langchain",
+        )
