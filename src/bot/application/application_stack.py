@@ -22,6 +22,10 @@ class ApplicationStack(Stack):
             key="MESSAGES_METADATA", value=Tbls.messages_metadata.table_name
         )
 
+        Fns.process_stream.add_environment(
+            key="ENV_LANG_CHAIN_AGENT", value=Fns.lang_chain_agent.function_name
+        )
+
         Fns.process_stream.add_event_source(
             aws_lambda_event_sources.DynamoEventSource(
                 table=Tbls.messages_metadata,

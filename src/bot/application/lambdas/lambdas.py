@@ -30,7 +30,7 @@ class Lambdas(Construct):
             handler="lambda_function.lambda_handler",
             description="process incoming whatsapp messages",
             code=aws_lambda.Code.from_asset("./application/lambdas/code/whatsapp_in"),
-            layers=[layers.bs4_requests],
+            layers=[],
             **COMMON_LAMBDA_CONF,
         )
 
@@ -42,5 +42,16 @@ class Lambdas(Construct):
                 "./application/lambdas/code/process_stream"
             ),
             layers=[layers.bs4_requests, layers.pymupdf],
+            **COMMON_LAMBDA_CONF,
+        )
+
+        self.lang_chain_agent = aws_lambda.Function(
+            self,
+            "lang_chain_agent",
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.from_asset(
+                "./application/lambdas/code/lang_chain_agent"
+            ),
+            layers=[],
             **COMMON_LAMBDA_CONF,
         )

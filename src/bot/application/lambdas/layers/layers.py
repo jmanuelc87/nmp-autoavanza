@@ -13,7 +13,9 @@ class Layers(Construct):
         self.bs4_requests = aws_lambda.LayerVersion(
             self,
             "Bs4Requests",
-            code=aws_lambda.Code.from_asset("./application/lambdas/layers/bs4_requests.zip"),
+            code=aws_lambda.Code.from_asset(
+                "./application/lambdas/layers/bs4_requests.zip"
+            ),
             compatible_runtimes=[
                 aws_lambda.Runtime.PYTHON_3_8,
                 aws_lambda.Runtime.PYTHON_3_9,
@@ -26,13 +28,15 @@ class Layers(Construct):
         # layer con pymupdf
         self.pymupdf = aws_lambda.LayerVersion(
             self,
-            "PyMuPDF",
-            code=aws_lambda.Code.from_asset("./application/lambdas/layers/pymupdf_layer.zip"),
+            "pymupdf",
+            code=aws_lambda.Code.from_asset(
+                "./application/lambdas/layers/pymupdf_layer.zip"
+            ),
             compatible_runtimes=[
                 aws_lambda.Runtime.PYTHON_3_8,
                 aws_lambda.Runtime.PYTHON_3_9,
                 aws_lambda.Runtime.PYTHON_3_10,
                 aws_lambda.Runtime.PYTHON_3_11,
             ],
-            description="pymunpdf"
+            description="pymupdf",
         )

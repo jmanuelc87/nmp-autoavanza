@@ -1,9 +1,13 @@
 import os
+import sys
 import time
 import json
 import boto3
 
+import logging
+
 from botocore.exceptions import ClientError
+
 
 BYE = {
     "statusCode": 200,
@@ -27,8 +31,18 @@ OK = {
 }
 
 
+def get_logger(level):
+    root = logging.getLogger()
+    if root.handlers:
+        for handler in root.handlers:
+            root.removeHandler(handler)
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',level=level)
+    return root
+
+
 dynamodb_resource = boto3.resource("dynamodb")
 table = dynamodb_resource.Table(os.environ.get("MESSAGES_METADATA"))
+log = get_logger(logging.INFO)
 
 
 def lambda_handler(event, context):
@@ -42,6 +56,8 @@ def lambda_handler(event, context):
     # Do not process messages older than 300 sec
     for entry in whatsapp_body["entry"]:
         for change in entry["changes"]:
+            phone_id = change["value"]["metadata"]["phone_number_id"]
+            name = change["value"]["contacts"][0]["profile"]["name"]
             messages = change["value"][change["field"]]
 
             for message in messages:
@@ -52,6 +68,8 @@ def lambda_handler(event, context):
                     continue
 
                 message["messages_id"] = message["id"]
+                message["phone_id"] = phone_id
+                message["name"] = name
 
                 batch.append(message)
 
@@ -60,8 +78,10 @@ def lambda_handler(event, context):
         with table.batch_writer() as writer:
             for item in batch:
                 writer.put_item(Item=item)
+
+        log.info("Message Published")
     except ClientError as e:
-        print("No messages")
-        print(e)
+        log.info("No Messages")
+        log.info(e.get("Error"))
 
     return OK
