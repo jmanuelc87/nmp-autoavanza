@@ -9,6 +9,8 @@ dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv())
 
 app = FastAPI()
 
+token = "NMP2025"
+
 # initialize DynamoDB table
 dynamodb_resource = boto3.resource(
     "dynamodb",
@@ -19,7 +21,7 @@ dynamodb_resource = boto3.resource(
     aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY", "test"),
     region_name="us-east-1",
 )
-table = dynamodb_resource.Table("ApplicationStack-wawamessagesmetadataB10E-fef7ffcb")
+table = dynamodb_resource.Table("ApplicationStack-wawamessagesmetadataB10E-2aad007f")
 
 
 def process_messages(entries):
@@ -52,7 +54,7 @@ def app_webhook_verify(
     hub_challenge: str = Query(..., alias="hub.challenge"),
 ):
     """Verify webhook subscription challenge."""
-    if hub_mode == "subscribe" and hub_verify_token == "NMP2025":
+    if hub_mode == "subscribe" and hub_verify_token == token:
         return Response(content=hub_challenge, status_code=status.HTTP_200_OK)
     else:
         return Response(content="Forbidden", status_code=status.HTTP_403_FORBIDDEN)

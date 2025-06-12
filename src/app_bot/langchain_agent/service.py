@@ -8,9 +8,14 @@ import requests
 from fastapi import FastAPI, Request, Response
 
 from boto3.dynamodb.conditions import Key
+from decimal import Decimal
+from dynamodb_base_chat_message import DynamoDBChatMessageHistory
 
 from langchain_openai import ChatOpenAI
-from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.chat_history import (
+    InMemoryChatMessageHistory,
+    BaseChatMessageHistory,
+)
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.messages import BaseMessage, HumanMessage
 from langchain.prompts import (
@@ -26,6 +31,8 @@ app = FastAPI()
 
 llm = ChatOpenAI(temperature=0)
 
+TIME = 360
+
 # initialize DynamoDB table
 dynamodb_resource = boto3.resource(
     "dynamodb",
@@ -37,17 +44,17 @@ dynamodb_resource = boto3.resource(
     region_name="us-east-1",
 )
 table_session_active = dynamodb_resource.Table(
-    "ApplicationStack-wawasessions64CA0369-0485187a"
+    "ApplicationStack-wawasessions64CA0369-059ff3eb"
 )
 
 
-def query(key, table, keyvalue):
+def query_session(key, table, keyvalue):
     response = table.query(KeyConditionExpression=Key(key).eq(keyvalue))
-    print(response)
-    return response["Items"][0]
+    items = response["Items"]
+    return response["Items"][0] if len(items) > 0 else {}
 
 
-def save_item_ddb(table, item):
+def save_item_session(table, item):
     response = table.put_item(Item=item)
     return response
 
@@ -55,65 +62,128 @@ def save_item_ddb(table, item):
 def update_item_session(table_name_session, value, session_time):
     try:
         response = table_name_session.update_item(
-            Key={"phone_number": value},
+            Key={"session_id": value},
             UpdateExpression="set session_time=:item1",
             ExpressionAttributeValues={":item1": session_time},
             ReturnValues="UPDATED_NEW",
         )
-        print(response)
     except Exception as e:
         print(e)
     else:
         return response
 
 
-def query_history(key, keyvalue):
-    print("Query History")
-    table_session_active = dynamodb_resource.Table(
-        "ApplicationStack-wawausermetadata49856CA1-68c7a5c2"
-    )
-    response = table_session_active.query(KeyConditionExpression=Key(key).eq(keyvalue))
-    return response["Items"][0]
-
-
 def get_chat_history(session_id: str):
     try:
-        session_data = query("session_id", table_session_active, session_id)
+        session_data = query_session("session_id", table_session_active, session_id)
+        print("session_data", session_data)
         now = int(time.time())
-        diff = now = session_data["session_time"]
-        if diff > 300:
+        diff = now - session_data["session_time"]
+        if diff > TIME:
+            print("Create new session")
             update_item_session(table_session_active, session_id, now)
-            id = str(session_id) + "_" + str(now)
-            history = []
+            id = str(session_id)
+            return DynamoDBChatMessageHistory(session_id=id)
         else:
-            id = str(session_id) + "_" + str(session_data["session_time"])
-            history = query_history("session_id", id)["History"]
-
-        print("history", history)
-
-        messages = []
-        for message in history:
-            messages.append(BaseMessage(message))
-
-        messageHistory = InMemoryChatMessageHistory(messages)
-
-        return messageHistory
-    except:
+            print("Retrieve old session")
+            id = str(session_id)
+            return DynamoDBChatMessageHistory(session_id=id)
+    except Exception as e:
+        print("New User", e)
         now = int(time.time())
-        id = str(session_id) + "_" + str(now)
-        new_row = {"session_id": id, "session_time": now}
-        save_item_ddb(table_session_active, new_row)
-        history = []
-        return InMemoryChatMessageHistory()
+        id = str(session_id)
+        print(id)
+        new_row = {
+            "session_id": id,
+            "session_time": now,
+            "session_state": "start",
+        }
+
+        save_item_session(table_session_active, new_row)
+        return DynamoDBChatMessageHistory(session_id=id)
 
 
-prompt = ChatPromptTemplate(
+def get_current_state(session_id):
+    try:
+        session_data = query_session("session_id", table_session_active, session_id)
+        now = int(time.time())
+        diff = now - session_data["session_time"]
+        session_state = None
+        if diff > TIME:
+            update_current_state(session_data["session_id"], "start")
+            session_state = "start"
+        else:
+            session_state = session_data["session_state"]
+    except:
+        session_state = "start"
+
+    return session_state
+
+
+def update_current_state(session_id, state):
+    try:
+        response = table_session_active.update_item(
+            Key={"session_id": session_id},
+            UpdateExpression="set session_state=:item1",
+            ExpressionAttributeValues={":item1": state},
+            ReturnValues="UPDATED_NEW",
+        )
+        print("Updated state to:", state)
+    except Exception as e:
+        print(e)
+    else:
+        return response
+
+
+def get_system_prompt(state):
+    prompts = {
+        "start": "Eres un asistente servicial, saludas al usuario, explicas el simulador autoavanza, que es un sistema de credito prendario por el vehiculo del cliente, y pides de forma amable la foto frontal de la INE",
+        "awaiting_ine_front": "Eres un asistente servicial, y pides de forma amable la foto trasera de la INE",
+        "awaiting_ine_back": "Eres un asistente servicial, y pides de forma amable la foto frontal de la tarjeta de circulacion",
+        "awaiting_tc_front": "Eres un asistente servicial, y pides de forma amable la foto trasera de la tarjeta de circulacion",
+        "awaiting_tc_back": "Eres un asistente servicial, y pides de forma amable la foto frontal de la factura del vehiculo",
+        "awaiting_invoice_front": "Eres un asistente servicial, y pides de forma amable la foto trasera de la factura del vehiculo",
+        "awaiting_invoice_back": "Eres un asistente servicial, y de acuerdo al resultado de las siguientes reglas decides si procedes a la oferta final o no.",
+        "awaiting_final_offer": "",
+    }
+
+    return prompts[state]
+
+
+def get_next_state(state):
+    condition_states = {
+        "start": "awaiting_ine_front",
+        "awaiting_ine_front": "awaiting_ine_back",
+        "awaiting_ine_back": "awaiting_tc_front",
+        "awaiting_tc_front": "awaiting_tc_back",
+        "awaiting_tc_back": "awaiting_invoice_front",
+        "awaiting_invoice_front": "awaiting_invoice_back",
+        "awaiting_invoice_back": "awaiting_final_offer",
+    }
+    return condition_states[state]
+
+
+def get_pipeline(state):
+    pipeline_states = {
+        "start": prompt | llm,
+        "awaiting_ine_front": prompt | llm,
+        "awaiting_ine_back": prompt | llm,
+        "awaiting_tc_front": prompt | llm,
+        "awaiting_tc_back": prompt | llm,
+        "awaiting_invoice_front": prompt | llm,
+        "awaiting_invoice_back": prompt | llm,
+        "awaiting_final_offer": prompt | llm,
+    }
+    return pipeline_states[state]
+
+
+current_state = "start"
+
+prompt = ChatPromptTemplate.from_messages(
     [
-        {
-            "role": "system",
-            "content": "Eres un asistente servicial.",
-        },
-        {"role": "user", "content": "{query}"},
+        SystemMessagePromptTemplate.from_template("{prompt_query}"),
+        MessagesPlaceholder(variable_name="history"),
+        HumanMessagePromptTemplate.from_template("{query}"),
     ]
 )
 
@@ -122,16 +192,22 @@ prompt = ChatPromptTemplate(
 async def langchain_agent(request: Request):
     data = await request.json()
 
-    ## Add prompt template following a state structure states
+    current_state = get_current_state(data["phone"])
+
+    pipeline = get_pipeline(current_state)
+
     pipeline_with_history = RunnableWithMessageHistory(
-        prompt | llm,
+        pipeline,
         get_session_history=get_chat_history,
         input_messages_key="query",
         history_messages_key="history",
     )
 
+    prompt_query = get_system_prompt(current_state)
+
     aimessage = pipeline_with_history.invoke(
-        {"query": data["body"]}, config={"session_id": data["phone"]}
+        {"query": data["body"], "prompt_query": prompt_query},
+        config={"session_id": data["phone"]},
     )
 
     response = requests.post(
@@ -139,7 +215,9 @@ async def langchain_agent(request: Request):
         json={"message": aimessage.content, "phone_number": data["phone"]},
     )
 
-    print("aimessage", aimessage.content)
+    next_state = get_next_state(current_state)
+
+    update_current_state(data["phone"], next_state)
 
     return Response(content=response.text)
 

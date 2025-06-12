@@ -10,7 +10,7 @@ app = FastAPI()
 def send_to_whatsapp(message: str, phone_number: str) -> tuple[int, dict]:
     url = "https://graph.facebook.com/v22.0/671091322757721/messages"
     headers = {
-        "Authorization": "Bearer EAAR9QaZBRJ1sBOwGD8Q65qsyqxlRkuYZArmLnwUPUNautUbH5mD4IZAHFtUZCNGLcZBvRry7YkoT4QqTl2lJZCMZB2yBuP09gYVdLZBudpWEaAHk8V8ssSW1PRimVZBglyJu98w8ylU3WJf8yksSFqjOsFj7rTi83rROQUe8QzZCF8zgqOOXqs4l78x2LJj11UFHG4dHWKg4dAUxJZCh5kxnJq5X5GPtmZBVF4OssaKSZAwcgCJWUdz1O73oZD",
+        "Authorization": "Bearer EAAR9QaZBRJ1sBOx1gZCBvqZCJr3rfHQ2tl1fDGsxGnbWOceSl22aHAco7AjN7R7DMUBkJKfqeaXbTkybU03eqSlBE2u9AHv5qA0ZBxwZAktn4kIFuYvrR2aQf6mD6fRifThORoZBJRvgybePHwBnLKIlFSaSHdZBJ4pQnGf0q1ZBWAWq5sKUAwonZCav1BlZAfulAphvb8GB3pFGfHdwKXfbI82aCv70mLJRJRzdawh8G5OVuZBjVmo0ZBsZD",
         "Content-Type": "application/json",
     }
 

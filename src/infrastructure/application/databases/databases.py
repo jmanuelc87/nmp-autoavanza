@@ -36,7 +36,7 @@ class Tables(Construct):
             self,
             f"{id}_user_metadata",
             partition_key=ddb.Attribute(
-                name="phone_number", type=ddb.AttributeType.STRING
+                name="session_id", type=ddb.AttributeType.STRING
             ),
             **TABLE_CONFIG,
         )
